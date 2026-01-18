@@ -1,0 +1,23 @@
+## EMPTY STRING issue
+While I was handling null values of the dataset, I found there were companies whose industry were missing. I tried to SELF JOIN the table and find out which company is missing industry using below approach 
+
+SELECT t1.company, t1.industry,t2.company, t2.industry
+FROM layoffs_staging2 t1
+JOIN layoffs_staging2 t2
+ON t1.company = t2.company
+WHERE (t1.industry IS NULL OR t1.industry = '')
+AND t2.industry IS NOT NULL;
+
+I was not getting any results when I ran this query. Then I did some debugging and found that the column contained empty string that's why `t1.industry = ''` was not returning value
+
+Solution: Use of TRIM function
+
+SELECT t1.company, t1.industry,t2.company, t2.industry
+FROM layoffs_staging2 t1
+JOIN layoffs_staging2 t2
+ON t1.company = t2.company
+WHERE (t1.industry IS NULL OR TRIM(t1.industry) = '')
+AND t2.industry IS NOT NULL
+AND TRIM(t2.industry) <> '';
+
+BINGO!! Now it works
